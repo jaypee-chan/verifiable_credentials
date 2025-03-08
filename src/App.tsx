@@ -719,22 +719,52 @@ function App() {
               <button
                 onClick={() => handleDisclose('kyc-only')}
                 disabled={!credential}
-                className="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 disabled:opacity-50"
+                className={`w-full py-2 px-4 rounded-md disabled:opacity-50 flex items-center justify-center gap-2 ${
+                  credential?.fields.kycStatus === 'VERIFIED'
+                    ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                    : credential?.fields.kycStatus === 'REJECTED'
+                    ? 'bg-red-100 text-red-800 hover:bg-red-200'
+                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                }`}
               >
+                {credential?.fields.kycStatus === 'VERIFIED' && <BadgeCheck className="w-4 h-4" />}
+                {credential?.fields.kycStatus === 'REJECTED' && <X className="w-4 h-4" />}
                 KYC Status Only
               </button>
               <button
                 onClick={() => handleDisclose('age-verification')}
                 disabled={!credential}
-                className="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 disabled:opacity-50"
+                className={`w-full py-2 px-4 rounded-md disabled:opacity-50 flex items-center justify-center gap-2 ${
+                  credential ? (
+                    new Date().getFullYear() - new Date(credential.holderInfo.dateOfBirth).getFullYear() >= 18
+                      ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                      : 'bg-red-100 text-red-800 hover:bg-red-200'
+                  ) : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                }`}
               >
+                {credential && (
+                  new Date().getFullYear() - new Date(credential.holderInfo.dateOfBirth).getFullYear() >= 18
+                    ? <BadgeCheck className="w-4 h-4" />
+                    : <X className="w-4 h-4" />
+                )}
                 Age Verification
               </button>
               <button
                 onClick={() => handleDisclose('wealth-threshold')}
                 disabled={!credential}
-                className="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 disabled:opacity-50"
+                className={`w-full py-2 px-4 rounded-md disabled:opacity-50 flex items-center justify-center gap-2 ${
+                  credential ? (
+                    (credential.holderInfo.annualIncome * 3 + credential.holderInfo.assets.reduce((sum, asset) => sum + asset.value, 0)) >= wealthThreshold
+                      ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                      : 'bg-red-100 text-red-800 hover:bg-red-200'
+                  ) : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                }`}
               >
+                {credential && (
+                  (credential.holderInfo.annualIncome * 3 + credential.holderInfo.assets.reduce((sum, asset) => sum + asset.value, 0)) >= wealthThreshold
+                    ? <BadgeCheck className="w-4 h-4" />
+                    : <X className="w-4 h-4" />
+                )}
                 {currentRole === 'ISSUER' ? (
                   `Wealth Threshold Check ($${wealthThreshold.toLocaleString()})`
                 ) : (
